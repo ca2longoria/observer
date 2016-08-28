@@ -34,8 +34,10 @@ import observer.observer
 
 ### Unit tests
 testobserver.py
-
+```shell
 python testobserver.py
+```
+
 - List
 - Dict
 
