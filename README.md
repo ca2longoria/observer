@@ -32,6 +32,12 @@ import observer.observer
 - List
 - Dict
 
+Note that to recursively replace new list/dict values with List/Dict values, this odd thing must be manually set:
+```python
+{observer-object}.recurse = True
+```
+Currently thinking through possible solutions.
+
 ### Unit tests
 testobserver.py
 ```shell
