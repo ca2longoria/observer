@@ -11,7 +11,7 @@ Events handled:
 - del
 - change
 
-Two callback types, so far:
+Three callback types, so far:
 - 1-param
   - add
   - remove
@@ -91,7 +91,7 @@ def callback(val, old_val, key, *args, **keywords):
 {observer-object}.on('set','key1',callback)
 {observer-object}.off('set','key1',callback)
 
-def callback(val, old_val, *args, **keywords):
+def callback(old_val, key, *args, **keywords):
   pass
 
 {observer-object}.on('del','key1',callback)
