@@ -60,7 +60,7 @@ python testobserver.py
 These are set with one param.
 
 ```python
-def callback(val,*args,**keywords):
+def callback(val, *args, **keywords):
   pass
 
 {observer-object}.on('add',callback)
@@ -72,7 +72,7 @@ def callback(val,*args,**keywords):
 {observer-object}.on('reorder',callback)
 {observer-object}.off('reorder',callback)
 
-def callback(val,old_val,key,*args,**keywords):
+def callback(val, old_val, key, *args, **keywords):
   pass
 
 {observer-object}.on('change',callback)
@@ -82,13 +82,13 @@ def callback(val,old_val,key,*args,**keywords):
 These are set with 2 params.
 
 ```python
-def callback(val,old_val,key,*args,**keywords):
+def callback(val, old_val, key, *args, **keywords):
   pass
 
 {observer-object}.on('set','key1',callback)
 {observer-object}.off('set','key1',callback)
 
-def callback(val,old_val,*args,**keywords):
+def callback(val, old_val, *args, **keywords):
   pass
 
 {observer-object}.on('del','key1',callback)
