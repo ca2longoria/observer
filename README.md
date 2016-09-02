@@ -7,9 +7,7 @@ Events handled:
 - reorder
 - set
 - del
-
-Events pending:
-- change/replace
+- change
 
 Two callback types, so far:
 - 1-param
@@ -19,7 +17,7 @@ Two callback types, so far:
 - 2-param
   - set
   - del
-  - (change/replace?)
+  - change
 
 ### So far
 ```python
@@ -32,11 +30,21 @@ import observer.observer
 - List
 - Dict
 
-Note that to recursively replace new list/dict values with List/Dict values, this odd thing must be manually set:
+The attribute `recurse` and method `translate`, used in conjunction, allow for recursively replacing incoming objects' list- and dict-extending values with List and Dict respectively.
 ```python
 {observer-object}.recurse = True
+{observer-object}.translate()
 ```
-Currently thinking through possible solutions.
+
+This is, however, ungainly, and an extending Recurse class per List and Dict has been added as an, at least aesthetically, preferable solution.  The following are equivalent, except for setting `recurse` and running `translate()` after the respective parent class init.
+
+```python
+a = List([1,2,3])
+a = List.Recurse([1,2,3])
+
+b = Dict({0:1})
+b = Dict.Recurse({0:1})
+```
 
 ### Unit tests
 testobserver.py
