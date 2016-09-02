@@ -17,8 +17,9 @@ Two callback types, so far:
   - remove
   - reorder
 - 2-param
-  - set
   - del
+- 3-param
+  - set
   - change
 
 ### So far
