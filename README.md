@@ -56,6 +56,9 @@ python testobserver.py
 - Dict
 
 ### Setting events
+
+These are set with one param.
+
 ```python
 def callback(val,*args,**keywords):
   pass
@@ -75,6 +78,8 @@ def callback(val,old_val,key,*args,**keywords):
 {observer-object}.on('change',callback)
 {observer-object}.off('change',callback)
 ```
+
+These are set with 2 params.
 
 ```python
 def callback(val,old_val,key,*args,**keywords):
