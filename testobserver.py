@@ -6,12 +6,11 @@ from helpers import *
 
 
 class TestObserver(ut.TestCase):
-	
 	def setUp(self):
 		self.a = [1,2,3,4]
 		self.b = {'a':'alpha','b':'beta','c':{1:'one',2:'two'},'d':'ohyouknow'}
 		
-		self.counts = {'set':0,'del':0,'add':0,'remove':0,'reorder':0}
+		self.counts = {'set':0,'del':0,'change':0,'add':0,'remove':0,'reorder':0}
 		def these(ob):
 			res = {}
 			for k in ob.keys():
@@ -28,6 +27,9 @@ class TestObserver(ut.TestCase):
 		self.dict = observer.Dict(self.b)
 	def tearDown(self):
 		pass
+	
+
+class TestList(TestObserver):
 	
 	def test_list_init(self):
 		self.assertEqual(comparr(self.list,self.a),0)
@@ -110,6 +112,14 @@ class TestObserver(ut.TestCase):
 		self.assertEqual(comparr(self.list,self.a),0)
 		self.assertEqual(self.counts['remove'],9)
 	
+	def test_list_change(self):
+		self.list.on('change',self.count_inc['change'])
+		
+		self.list[0] = 'zero'
+		self.a[0] = 'zero'
+		self.assertEqual(comparr(self.list,self.a),0)
+		self.assertEqual(self.counts['change'],1)
+	
 	def test_list_reorder(self):
 		self.list.on('reorder',self.count_inc['reorder'])
 		
@@ -127,9 +137,7 @@ class TestObserver(ut.TestCase):
 		self.a[0] = ['A','B',[0]]
 		
 		# Test init
-		r = observer.List(copy.deepcopy(self.a))
-		r.recurse = True
-		r.translate()
+		r = observer.List.Recurse(copy.deepcopy(self.a))
 		
 		#exit(1)
 		self.assertEqual(comparr(r,self.a),0)
@@ -170,6 +178,9 @@ class TestObserver(ut.TestCase):
 		self.assertEqual(type(r[0]),int)
 		self.assertEqual(type(r[1]),observer.List)
 		self.assertEqual(self.counts['add'],7)
+
+
+class TestDict(TestObserver):
 	
 	# I've yet to implement the recursive List/Dict-setting, but soon, sooon...
 	def test_dict_init(self):
@@ -198,6 +209,12 @@ class TestObserver(ut.TestCase):
 		self.b['a'] = 'BEHTAR'
 		self.assertEqual(compcrawl(self.dict,self.b),0)
 		self.assertEqual(self.counts['add'],1)
+		
+		# Test update
+		self.dict.update({'a':0,'x':1,'y':{'z':2}})
+		self.b.update({'a':0,'x':1,'y':{'z':2}})
+		self.assertEqual(compcrawl(self.dict,self.b),0)
+		self.assertEqual(self.counts['add'],4)
 	
 	def test_dict_remove(self):
 		self.dict.on('remove',self.count_inc['remove'])
@@ -225,10 +242,19 @@ class TestObserver(ut.TestCase):
 		self.b.popitem()
 		self.assertEqual(compcrawl(self.dict,self.b),0)
 		self.assertEqual(self.counts['remove'],4)
+		
+		# Test update
+	
+	def test_dict_change(self):
+		self.dict.on('change',self.count_inc['change'])
+		
+		self.dict['a'] = 'what'
+		self.b['a'] = 'what'
+		self.assertEqual(compcrawl(self.dict,self.b),0)
+		self.assertEqual(self.counts['change'],1)
 	
 	def test_dict_recurse(self):
-		self.dict.recurse = True
-		self.dict.translate()
+		self.dict = observer.Dict.Recurse(self.dict)
 		
 		self.assertEqual(compcrawl(self.dict,self.b),0)
 		self.assertEqual(type(self.dict['c']),observer.Dict)

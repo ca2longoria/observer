@@ -16,7 +16,7 @@ Todo:
 		x add
 		x remove
 		x reorder
-		- change
+		x change
 			. callback is of 2-arg format, however
 	x 2 arg
 		x set
@@ -125,6 +125,7 @@ class _Observer(object):
 class _SetDel(_Observer):
 	def __init__(self,classtype):
 		_Observer.__init__(self,classtype)
+		self._add_events_1('change')
 		self._add_events_k('set','del')
 	# Such a hack...
 	def _has_key(self,k):
@@ -133,11 +134,15 @@ class _SetDel(_Observer):
 		#print tab(),'setitem',k,v
 		old = self._has_key(k) and self[k] or None # Is None "null" enough?
 		self._classtype.__setitem__(self,k,v)
-		if not self._silent and self._etable.has_key(k):
-			r = self._etable[k]['set']
+		if not self._silent:
+			r = self._etable[None]['change']
 			for call,args,keys in r:
-				# new, old, key
 				call(v,old,k,*args,**keys)
+			if self._etable.has_key(k):
+				r = self._etable[k]['set']
+				for call,args,keys in r:
+					# new, old, key
+					call(v,old,k,*args,**keys)
 	def __delitem__(self,k):
 		#print 'delitem',k
 		old = self[k]
@@ -199,6 +204,19 @@ class _Translate(object):
 		#print tab(),'to translate: ob',ob
 		return translate(ob,self._table,self._ignore,self._post)
 
+def _uniqueid(src=[0]):
+	# Counterintuitively, perhaps, src is never to be assigned in usage, as its
+	# definition creates a global object as src's default value.
+	src[0] += 1
+	return src[0]-1
+
+def constructRecurseClass(cls,name=None):
+	name = name or '_RecurseClass_'+str(_uniqueid())
+	def __init__(self,*args,**keys):
+		super(self.__class__,self).__init__(*args,**keys)
+		self.recurse = True
+		self.translate()
+	return type(name,(cls,),{'__init__':__init__})
 
 class List(_Translate,_SetDel,_AddRemove,_Reorder,list):
 	
@@ -235,7 +253,7 @@ class List(_Translate,_SetDel,_AddRemove,_Reorder,list):
 		if self.recurse:
 			s = self._silent
 			self._silent = True
-			list.__setitem__(self,i,self.translate(i))
+			self._classtype.__setitem__(self,i,self.translate(i))
 			self._silent = s
 	def __delitem__(self,i):
 		v = self[i]
@@ -244,12 +262,12 @@ class List(_Translate,_SetDel,_AddRemove,_Reorder,list):
 	def __setslice__(self,a,b,r,*args,**keys):
 		#print 'setslice',a,b,r
 		old_slice = self[a:b]
-		list.__setslice__(self,a,b,r,*args,**keys)
+		self._classtype.__setslice__(self,a,b,r,*args,**keys)
 		if self.recurse:
 			for i in range(a,a+len(r)):
 				s = self._silent
 				self._silent = True
-				list.__setitem__(self,i,self.translate(i))
+				self._classtype.__setitem__(self,i,self.translate(i))
 				self._silent = s
 		# Because the removal and insertion has already occurred, the self
 		# passed into the _add_calls will not represent the state of the
@@ -312,7 +330,7 @@ class List(_Translate,_SetDel,_AddRemove,_Reorder,list):
 	def sort(self,*args,**keys):
 		list.sort(self,*args,**keys)
 		self._reorder_call()
-
+List.Recurse = constructRecurseClass(List)
 
 class Dict(_Translate,_SetDel,_AddRemove,dict):
 	def __init__(self,*args,**keys):
@@ -357,7 +375,8 @@ class Dict(_Translate,_SetDel,_AddRemove,dict):
 		_SetDel.__delitem__(self,k)
 		self._remove_call(v,k,self)
 	def update(self,a,**keys):
-		for k,v in a:
+		iter = a.__class__.iteritems if isinstance(a,dict) else a.__iter__
+		for k,v in iter(a):
 			# This bit is still in the air; should I add a 'replace' event?
 			# Also, this fires callbacks before all values are assigned.
 			self[k] = v
@@ -373,4 +392,5 @@ class Dict(_Translate,_SetDel,_AddRemove,dict):
 		p = dict.popitem(self)
 		self._remove_call(p[0],p[1],self)
 		return p
+Dict.Recurse = constructRecurseClass(Dict)
 
