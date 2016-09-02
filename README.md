@@ -1,5 +1,7 @@
 # observer
-Observer classes extending common types
+Observer classes extending common types.
+
+For clarity, this is observer in the sense of adding event handling to otherwise-unsuspecting objects.  In this case, extended are `list` and `dict`.  Working presently on `set`.
 
 Events handled:
 - add
