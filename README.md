@@ -57,11 +57,37 @@ python testobserver.py
 
 ### Setting events
 ```python
+def callback(val,*args,**keywords):
+  pass
+
 {observer-object}.on('add',callback)
 {observer-object}.off('add',callback)
+
+{observer-object}.on('remove',callback)
+{observer-object}.off('remove',callback)
+
+{observer-object}.on('reorder',callback)
+{observer-object}.off('reorder',callback)
+
+def callback(val,old_val,key,*args,**keywords):
+  pass
+
+{observer-object}.on('change',callback)
+{observer-object}.off('change',callback)
 ```
 
 ```python
+def callback(val,old_val,key,*args,**keywords):
+  pass
+
 {observer-object}.on('set','key1',callback)
 {observer-object}.off('set','key1',callback)
+
+def callback(val,old_val,*args,**keywords):
+  pass
+
+{observer-object}.on('del','key1',callback)
+{observer-object}.off('del','key1',callback)
 ```
+
+It is possible to add default \*args and \*\*keys arguments that append to immediately provided arguments, but I'll cover that later.
