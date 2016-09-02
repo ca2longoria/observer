@@ -186,7 +186,9 @@ class _Reorder(_Observer):
 			return
 		r = self._etable[None]['reorder']
 		for call,args2,keys2 in r:
-			call(self,*(args+args2),**keys2)
+			keys3 = copy.deepcopy(keys)
+			keys3.update(keys2)
+			call(self,*(args+args2),**keys3)
 
 class _Translate(object):
 	def __init__(self,table=None,ignore=None,post=None):
