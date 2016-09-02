@@ -72,6 +72,7 @@ def callback(val, *args, **keywords):
 {observer-object}.on('remove',callback)
 {observer-object}.off('remove',callback)
 
+# For reorder, val is simply passed self.
 {observer-object}.on('reorder',callback)
 {observer-object}.off('reorder',callback)
 
